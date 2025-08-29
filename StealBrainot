@@ -1,0 +1,554 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UIS = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CheatMenu"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.Parent = player:WaitForChild("PlayerGui")
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0.16,0,0.08,0)
+ToggleButton.Position = UDim2.new(0.02,0,0.88,0)
+ToggleButton.Text = "MENU"
+ToggleButton.TextScaled = true
+ToggleButton.TextColor3 = Color3.new(1,1,1)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(42,88,220)
+ToggleButton.Parent = ScreenGui
+local ToggleCorner = Instance.new("UICorner", ToggleButton)
+ToggleCorner.CornerRadius = UDim.new(0,10)
+
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0.38,0,0.56,0)
+Frame.Position = UDim2.new(0.31,0,0.22,0)
+Frame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Frame.Visible = false
+Frame.Parent = ScreenGui
+local FrameCorner = Instance.new("UICorner", Frame)
+FrameCorner.CornerRadius = UDim.new(0,14)
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0.12,0)
+Title.BackgroundTransparency = 1
+Title.Text = "Cheat Menu"
+Title.TextScaled = true
+Title.TextColor3 = Color3.fromRGB(210,210,210)
+Title.Parent = Frame
+
+local TabBar = Instance.new("Frame")
+TabBar.Size = UDim2.new(1,0,0.08,0)
+TabBar.Position = UDim2.new(0,0,0.12,0)
+TabBar.BackgroundColor3 = Color3.fromRGB(28,28,28)
+TabBar.Parent = Frame
+
+local TabsLayout = Instance.new("UIListLayout", TabBar)
+TabsLayout.FillDirection = Enum.FillDirection.Horizontal
+TabsLayout.Padding = UDim.new(0,6)
+TabsLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+TabsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local function mkTabButton(text)
+    local b = Instance.new("TextButton")
+    b.Size = UDim2.new(0,120,1,0)
+    b.Text = text
+    b.TextScaled = true
+    b.TextColor3 = Color3.new(1,1,1)
+    b.BackgroundColor3 = Color3.fromRGB(55,55,55)
+    b.Parent = TabBar
+    local c = Instance.new("UICorner", b)
+    c.CornerRadius = UDim.new(0,8)
+    return b
+end
+
+local TabMain = mkTabButton("Основне")
+local TabESP = mkTabButton("ESP")
+local TabMove = mkTabButton("Рух")
+local TabLog = mkTabButton("Логи")
+
+local Pages = Instance.new("Frame")
+Pages.Size = UDim2.new(1,0,0.72,0)
+Pages.Position = UDim2.new(0,0,0.2,0)
+Pages.BackgroundTransparency = 1
+Pages.Parent = Frame
+
+local function mkPage()
+    local p = Instance.new("Frame")
+    p.Size = UDim2.new(1,0,1,0)
+    p.BackgroundTransparency = 1
+    p.Visible = false
+    p.Parent = Pages
+    return p
+end
+
+local PageMain = mkPage()
+local PageESP = mkPage()
+local PageMove = mkPage()
+local PageLog = mkPage()
+
+local function showPage(p)
+    for _,child in ipairs(Pages:GetChildren()) do
+        if child:IsA("Frame") then child.Visible = false end
+    end
+    p.Visible = true
+end
+showPage(PageMain)
+
+local function tweenShow(f, show)
+    if show then
+        f.Visible = true
+        f.BackgroundTransparency = 1
+        TS:Create(f, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 0}):Play()
+    else
+        local t = TS:Create(f, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundTransparency = 1})
+        t.Completed:Connect(function() f.Visible = false end)
+        t:Play()
+    end
+end
+
+ToggleButton.MouseButton1Click:Connect(function()
+    tweenShow(Frame, not Frame.Visible)
+end)
+
+TabMain.MouseButton1Click:Connect(function() showPage(PageMain) end)
+TabESP.MouseButton1Click:Connect(function() showPage(PageESP) end)
+TabMove.MouseButton1Click:Connect(function() showPage(PageMove) end)
+TabLog.MouseButton1Click:Connect(function() showPage(PageLog) end)
+
+local function mkSection(parent, titleText, height)
+    local box = Instance.new("Frame")
+    box.Size = UDim2.new(0.92,0,height,0)
+    box.Position = UDim2.new(0.04,0,0,0)
+    box.BackgroundColor3 = Color3.fromRGB(32,32,32)
+    box.Parent = parent
+    local corner = Instance.new("UICorner", box)
+    corner.CornerRadius = UDim.new(0,10)
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1,0,0.2,0)
+    title.BackgroundTransparency = 1
+    title.Text = titleText
+    title.TextScaled = true
+    title.TextColor3 = Color3.fromRGB(230,230,230)
+    title.Parent = box
+    return box
+end
+
+local function mkToggle(parent, text)
+    local holder = Instance.new("Frame")
+    holder.Size = UDim2.new(1,0,0.22,0)
+    holder.BackgroundTransparency = 1
+    holder.Parent = parent
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.7,0,1,0)
+    label.BackgroundTransparency = 1
+    label.Text = text
+    label.TextScaled = true
+    label.TextColor3 = Color3.new(1,1,1)
+    label.Parent = holder
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.28,0,0.9,0)
+    btn.Position = UDim2.new(0.72,0,0.05,0)
+    btn.Text = "OFF"
+    btn.TextScaled = true
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+    btn.Parent = holder
+    local cr = Instance.new("UICorner", btn)
+    cr.CornerRadius = UDim.new(0,8)
+    return btn, label, holder
+end
+
+local function mkSlider(parent, text, min, max, default)
+    local cont = Instance.new("Frame")
+    cont.Size = UDim2.new(1,0,0.26,0)
+    cont.BackgroundTransparency = 1
+    cont.Parent = parent
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(0.35,0,1,0)
+    label.BackgroundTransparency = 1
+    label.Text = text..": "..tostring(default)
+    label.TextScaled = true
+    label.TextColor3 = Color3.new(1,1,1)
+    label.Parent = cont
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(0.55,0,0.35,0)
+    bar.Position = UDim2.new(0.4,0,0.33,0)
+    bar.BackgroundColor3 = Color3.fromRGB(60,60,60)
+    bar.Parent = cont
+    local barCorner = Instance.new("UICorner", bar)
+    barCorner.CornerRadius = UDim.new(0,8)
+    local knob = Instance.new("Frame")
+    knob.Size = UDim2.new(0.08,0,1,0)
+    knob.BackgroundColor3 = Color3.fromRGB(110,110,110)
+    knob.Parent = bar
+    local knobCorner = Instance.new("UICorner", knob)
+    knobCorner.CornerRadius = UDim.new(0,8)
+    local value = default
+    local dragging = false
+    local function setFromX(x)
+        local rel = math.clamp((x - bar.AbsolutePosition.X)/bar.AbsoluteSize.X, 0, 1)
+        knob.Position = UDim2.new(rel - knob.Size.X.Scale/2,0,0,0)
+        value = math.floor(min + (max - min)*rel + 0.5)
+        label.Text = text..": "..tostring(value)
+    end
+    bar.InputBegan:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            setFromX(i.Position.X)
+        end
+    end)
+    UIS.InputChanged:Connect(function(i)
+        if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+            setFromX(i.Position.X)
+        end
+    end)
+    UIS.InputEnded:Connect(function(i)
+        if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+            dragging = false
+        end
+    end)
+    setFromX(bar.AbsolutePosition.X + bar.AbsoluteSize.X*((default-min)/(max-min)))
+    return function() return value end
+end
+
+local LogFrame = Instance.new("ScrollingFrame")
+LogFrame.Size = UDim2.new(0.94,0,0.9,0)
+LogFrame.Position = UDim2.new(0.03,0,0.06,0)
+LogFrame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+LogFrame.ScrollBarThickness = 6
+LogFrame.Visible = true
+LogFrame.Parent = PageLog
+local LogCorner = Instance.new("UICorner", LogFrame)
+LogCorner.CornerRadius = UDim.new(0,10)
+local LogLayout = Instance.new("UIListLayout", LogFrame)
+LogLayout.SortOrder = Enum.SortOrder.LayoutOrder
+local function log(msg)
+    local l = Instance.new("TextLabel")
+    l.Size = UDim2.new(1,0,0,22)
+    l.Text = msg
+    l.TextScaled = true
+    l.BackgroundTransparency = 1
+    l.TextColor3 = Color3.new(1,1,1)
+    l.Parent = LogFrame
+    RunService.Heartbeat:Wait()
+    LogFrame.CanvasSize = UDim2.new(0,0,0,LogLayout.AbsoluteContentSize.Y + 20)
+end
+
+local SecMain = mkSection(PageMain, "Швидкі тумблери", UDim.new(0.42,0))
+SecMain.Position = UDim2.new(0.04,0,0.02,0)
+local SecMain2 = mkSection(PageMain, "Стан", UDim.new(0.42,0))
+SecMain2.Position = UDim2.new(0.04,0,0.48,0)
+
+local ESPState = Instance.new("TextLabel")
+ESPState.Size = UDim2.new(0.92,0,0.3,0)
+ESPState.Position = UDim2.new(0.04,0,0.25,0)
+ESPState.BackgroundTransparency = 1
+ESPState.Text = "ESP: Вимк."
+ESPState.TextScaled = true
+ESPState.TextColor3 = Color3.fromRGB(230,230,230)
+ESPState.Parent = SecMain2
+
+local JumpState = Instance.new("TextLabel")
+JumpState.Size = UDim2.new(0.92,0,0.3,0)
+JumpState.Position = UDim2.new(0.04,0,0.55,0)
+JumpState.BackgroundTransparency = 1
+JumpState.Text = "Jump: Стандарт"
+JumpState.TextScaled = true
+JumpState.TextColor3 = Color3.fromRGB(230,230,230)
+JumpState.Parent = SecMain2
+
+local FlyState = Instance.new("TextLabel")
+FlyState.Size = UDim2.new(0.92,0,0.3,0)
+FlyState.Position = UDim2.new(0.04,0,0.85,0)
+FlyState.BackgroundTransparency = 1
+FlyState.Text = "Fly: Вимк."
+FlyState.TextScaled = true
+FlyState.TextColor3 = Color3.fromRGB(230,230,230)
+FlyState.Parent = SecMain2
+
+local ESPBtn,_,_ = mkToggle(SecMain, "ESP")
+local JumpBtn,_,_ = mkToggle(SecMain, "Jump Boost")
+local FlyBtn,_,_ = mkToggle(SecMain, "Fly")
+
+local SecESP = mkSection(PageESP, "Налаштування ESP", UDim.new(0.92,0))
+SecESP.Position = UDim2.new(0.04,0,0.04,0)
+local SecMove = mkSection(PageMove, "Налаштування руху", UDim.new(0.92,0))
+SecMove.Position = UDim2.new(0.04,0,0.04,0)
+
+local espEnabled = false
+local espShowHealth = true
+local espShowDistance = true
+local espColor = Color3.new(1,0,0)
+
+local ESPHealthBtn,_,_ = mkToggle(SecESP, "Показувати HP")
+ESPHealthBtn.Text = "ON"
+ESPHealthBtn.BackgroundColor3 = Color3.fromRGB(40,160,80)
+local ESPDistBtn,_,_ = mkToggle(SecESP, "Показувати дистанцію")
+ESPDistBtn.Text = "ON"
+ESPDistBtn.BackgroundColor3 = Color3.fromRGB(40,160,80)
+
+local espTags = {}
+
+local function getRoot(char)
+    return char and char:FindFirstChild("HumanoidRootPart")
+end
+
+local function createTag(plr)
+    if plr == player then return end
+    if not plr.Character then return end
+    local head = plr.Character:FindFirstChild("Head")
+    if not head then return end
+    if head:FindFirstChild("ESPTag") then return end
+    local bb = Instance.new("BillboardGui")
+    bb.Name = "ESPTag"
+    bb.AlwaysOnTop = true
+    bb.Size = UDim2.new(0,160,0,58)
+    bb.Parent = head
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1,0,1,0)
+    label.BackgroundTransparency = 1
+    label.TextScaled = true
+    label.TextColor3 = espColor
+    label.Parent = bb
+    espTags[plr] = label
+end
+
+local function destroyTag(plr)
+    if plr.Character and plr.Character:FindFirstChild("Head") then
+        local t = plr.Character.Head:FindFirstChild("ESPTag")
+        if t then t:Destroy() end
+    end
+    espTags[plr] = nil
+end
+
+local function refreshAllESP()
+    for _,plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player then
+            if espEnabled then
+                createTag(plr)
+            else
+                destroyTag(plr)
+            end
+        end
+    end
+end
+
+Players.PlayerAdded:Connect(function(plr)
+    plr.CharacterAdded:Connect(function()
+        task.wait(0.5)
+        if espEnabled then createTag(plr) end
+    end)
+end)
+
+RunService.RenderStepped:Connect(function()
+    if not espEnabled then return end
+    local myRoot = getRoot(character)
+    for plr,label in pairs(espTags) do
+        if plr.Character and label and plr.Character:FindFirstChild("Humanoid") and getRoot(plr.Character) and myRoot then
+            local txt = plr.Name
+            if espShowHealth then
+                txt = txt.." | HP:"..math.floor(plr.Character.Humanoid.Health)
+            end
+            if espShowDistance then
+                local d = (getRoot(plr.Character).Position - myRoot.Position).Magnitude
+                txt = txt.." | "..math.floor(d).."m"
+            end
+            label.Text = txt
+            label.TextColor3 = espColor
+        end
+    end
+end)
+
+ESPBtn.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    if espEnabled then
+        ESPBtn.Text = "ON"
+        ESPBtn.BackgroundColor3 = Color3.fromRGB(40,160,80)
+        ESPState.Text = "ESP: Увімк."
+        refreshAllESP()
+        log("ESP увімкнено")
+    else
+        ESPBtn.Text = "OFF"
+        ESPBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+        ESPState.Text = "ESP: Вимк."
+        refreshAllESP()
+        log("ESP вимкнено")
+    end
+end)
+
+ESPHealthBtn.MouseButton1Click:Connect(function()
+    espShowHealth = not espShowHealth
+    if espShowHealth then
+        ESPHealthBtn.Text = "ON"
+        ESPHealthBtn.BackgroundColor3 = Color3.fromRGB(40,160,80)
+        log("ESP: HP увімкнено")
+    else
+        ESPHealthBtn.Text = "OFF"
+        ESPHealthBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+        log("ESP: HP вимкнено")
+    end
+end)
+
+ESPDistBtn.MouseButton1Click:Connect(function()
+    espShowDistance = not espShowDistance
+    if espShowDistance then
+        ESPDistBtn.Text = "ON"
+        ESPDistBtn.BackgroundColor3 = Color3.fromRGB(40,160,80)
+        log("ESP: дистанцію увімкнено")
+    else
+        ESPDistBtn.Text = "OFF"
+        ESPDistBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+        log("ESP: дистанцію вимкнено")
+    end
+end)
+
+local defaultJump = humanoid.JumpPower
+local getJump = mkSlider(SecMove, "JumpPower", 30, 200, math.floor(defaultJump))
+local getFlySpeed = mkSlider(SecMove, "FlySpeed", 10, 120, 40)
+local getLift = mkSlider(SecMove, "Lift", 0, 10, 2)
+
+local jumpEnabled = false
+local flyEnabled = false
+local bodyVel = nil
+local flyConn = nil
+
+JumpBtn.MouseButton1Click:Connect(function()
+    jumpEnabled = not jumpEnabled
+    if jumpEnabled then
+        humanoid.JumpPower = getJump()
+        JumpBtn.Text = "ON"
+        JumpBtn.BackgroundColor3 = Color3.fromRGB(40,160,80)
+        JumpState.Text = "Jump: " .. tostring(getJump())
+        log("Jump Boost увімкнено: "..getJump())
+    else
+        humanoid.JumpPower = defaultJump
+        JumpBtn.Text = "OFF"
+        JumpBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+        JumpState.Text = "Jump: Стандарт"
+        log("Jump Boost вимкнено")
+    end
+end)
+
+local function startFly()
+    if flyEnabled then return end
+    flyEnabled = true
+    FlyBtn.Text = "ON"
+    FlyBtn.BackgroundColor3 = Color3.fromRGB(40,160,80)
+    FlyState.Text = "Fly: Увімк."
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    bodyVel = Instance.new("BodyVelocity")
+    bodyVel.MaxForce = Vector3.new(4000,4000,4000)
+    bodyVel.Parent = hrp
+    flyConn = RunService.RenderStepped:Connect(function()
+        if not flyEnabled or not bodyVel or not character or not character.Parent then return end
+        local cam = workspace.CurrentCamera
+        local look = cam and cam.CFrame.LookVector or Vector3.new()
+        local speed = getFlySpeed()
+        local lift = getLift()
+        bodyVel.Velocity = (look * speed) + Vector3.new(0,lift,0)
+    end)
+    log("Fly увімкнено: speed="..getFlySpeed()..", lift="..getLift())
+end
+
+local function stopFly()
+    if not flyEnabled then return end
+    flyEnabled = false
+    FlyBtn.Text = "OFF"
+    FlyBtn.BackgroundColor3 = Color3.fromRGB(70,70,70)
+    FlyState.Text = "Fly: Вимк."
+    if flyConn then flyConn:Disconnect() flyConn = nil end
+    if bodyVel then bodyVel:Destroy() bodyVel = nil end
+    log("Fly вимкнено")
+end
+
+FlyBtn.MouseButton1Click:Connect(function()
+    if flyEnabled then stopFly() else startFly() end
+end)
+
+character:GetPropertyChangedSignal("Parent"):Connect(function()
+    if not character.Parent then
+        stopFly()
+        for plr,_ in pairs(espTags) do destroyTag(plr) end
+    end
+end)
+
+player.CharacterAdded:Connect(function(newChar)
+    character = newChar
+    humanoid = character:WaitForChild("Humanoid")
+    if jumpEnabled then humanoid.JumpPower = getJump() else humanoid.JumpPower = defaultJump end
+    if flyEnabled then stopFly() task.wait(0.5) startFly() end
+    if espEnabled then task.wait(0.5) refreshAllESP() end
+end)
+
+local ColorRow = Instance.new("Frame")
+ColorRow.Size = UDim2.new(1,0,0.26,0)
+ColorRow.BackgroundTransparency = 1
+ColorRow.Parent = SecESP
+
+local ColorText = Instance.new("TextLabel")
+ColorText.Size = UDim2.new(0.35,0,1,0)
+ColorText.BackgroundTransparency = 1
+ColorText.Text = "Колір ESP"
+ColorText.TextScaled = true
+ColorText.TextColor3 = Color3.new(1,1,1)
+ColorText.Parent = ColorRow
+
+local Pal = Instance.new("Frame")
+Pal.Size = UDim2.new(0.55,0,0.9,0)
+Pal.Position = UDim2.new(0.4,0,0.05,0)
+Pal.BackgroundColor3 = Color3.fromRGB(50,50,50)
+Pal.Parent = ColorRow
+local PalCorner = Instance.new("UICorner", Pal)
+PalCorner.CornerRadius = UDim.new(0,8)
+
+local function mkSwatch(c)
+    local f = Instance.new("TextButton")
+    f.Size = UDim2.new(0,36,0,24)
+    f.Text = ""
+    f.BackgroundColor3 = c
+    f.Parent = Pal
+    local cr = Instance.new("UICorner", f)
+    cr.CornerRadius = UDim.new(0,6)
+    return f
+end
+
+local PalLayout = Instance.new("UIGridLayout", Pal)
+PalLayout.FillDirection = Enum.FillDirection.Horizontal
+PalLayout.CellPadding = UDim2.new(0,6,0,6)
+PalLayout.CellSize = UDim2.new(0,36,0,24)
+
+local colors = {
+    Color3.new(1,0,0),
+    Color3.new(0,1,0),
+    Color3.new(0,0,1),
+    Color3.new(1,1,0),
+    Color3.new(1,0,1),
+    Color3.new(0,1,1),
+    Color3.fromRGB(255,140,0),
+    Color3.fromRGB(200,200,200)
+}
+for _,c in ipairs(colors) do
+    local s = mkSwatch(c)
+    s.MouseButton1Click:Connect(function()
+        espColor = c
+        log("ESP колір змінено")
+    end)
+end
+
+local KeysInfo = Instance.new("TextLabel")
+KeysInfo.Size = UDim2.new(0.92,0,0.12,0)
+KeysInfo.Position = UDim2.new(0.04,0,0.9,0)
+KeysInfo.BackgroundTransparency = 1
+KeysInfo.Text = "Підказка: торкайся MENU для мобільного"
+KeysInfo.TextScaled = true
+KeysInfo.TextColor3 = Color3.fromRGB(180,180,180)
+KeysInfo.Parent = Frame
+
+log("Меню завантажено")
+log("Готово до використання")
+
